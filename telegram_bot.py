@@ -8,6 +8,7 @@ from aiogram.types import ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+
 data = MemoryStorage()
 
 
@@ -51,7 +52,7 @@ admins = [682751445, 1992272849]
 async def alarm(message: types.Message):
 
     if message.from_user.id in admins:
-        await message.answer(f"Greetings, {message.from_user.username}", reply_markup=first_kb)
+        await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
     else:
         await message.answer(f"Greetings, {message.from_user.username}, log in!", reply_markup=first_kb_no_admins)
 
@@ -60,11 +61,11 @@ async def alarm(message: types.Message):
 async def return_from_api_state(message: types.Message, state: FSMContext):
     if message.from_user.id in admins:
         if message.text == 'Back 🔙':
-            await message.reply("Main menu", reply_markup=first_kb)
+            await message.reply("Main menu", reply_markup=get_start_kb())
             await state.finish()
 
         elif message.text == 'Back to main menu 🔙':
-            await message.reply("Main menu", reply_markup=first_kb)
+            await message.reply("Main menu", reply_markup=get_start_kb())
             await state.finish()
 
         else:
@@ -85,7 +86,7 @@ async def return_from_secret_state(message: types.Message, state: FSMContext):
             await LogInStates.api_key.set()
 
         elif message.text == 'Back to main menu 🔙':
-            await message.reply("Main menu", reply_markup=first_kb)
+            await message.reply("Main menu", reply_markup=get_start_kb())
             await state.finish()
 
         else:
@@ -105,7 +106,7 @@ async def return_from_loggedin_state(message: types.Message, state: FSMContext):
             await LogInStates.secret_key.set()
 
         elif message.text == 'Back to main menu 🔙':
-            await message.reply("Main menu", reply_markup=first_kb)
+            await message.reply("Main menu", reply_markup=get_start_kb())
             await state.finish()
 
 
@@ -118,12 +119,16 @@ async def process_client_work_command(message: types.Message):
         await LogInStates.api_key.set()
 
 
-@dp.message_handler()
+@dp.message_handler(text = ['Statistics 💻'])
+async def process_statistics_command(message: types.Message):
+    if message.from_user.id in admins:
+        await message.reply("TO be procecced")
+
 
 @dp.message_handler()
 async def echo(message: types.Message):
     if message.from_user.id in admins:
-        await message.answer("I don't understand you, try again", reply_markup=first_kb)
+        await message.answer("I don't understand you, try again", reply_markup=get_start_kb())
 
 
 
