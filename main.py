@@ -2,11 +2,13 @@ from binance.client import Client
 import keys
 import pandas as pd
 import time
+import requests
 
 client = Client(keys.api_key, keys.secret_key)
 
 
 def top_coin():
+    #filter only usdt
     all_tickers = pd.DataFrame(client.get_ticker())
     usdt = all_tickers[all_tickers.symbol.str.contains('USDT')]
     work = usdt[~((usdt.symbol.str.contains('UP')) | (usdt.symbol.str.contains('DOWN')))]
@@ -63,8 +65,17 @@ def strategy(buy_amt, SL=0.985, Target=1.02, open_position=False):
     else:
         print('No find')
         time.sleep(20)
-
     while True:
         strategy(15)
 
-print(top_coin())
+# historical data:
+# frame = pd.DataFrame(client.get_historical_klines('BTCUSDT', '12h','72000' + 'min ago UTC'))
+# frame = frame.iloc[:, :6]
+# frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
+# print(frame.loc[lambda frame: frame['Volume'].astype(float)>50000])
+
+# order book data:
+url= 'https://api.binance.com/api/v3/depth?symbol='+'BTCUSDT'+'&limit=2'
+data=requests.get(url).json()
+print(data)
+
