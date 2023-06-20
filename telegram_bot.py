@@ -8,6 +8,7 @@ from aiogram.types import ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+
 data = MemoryStorage()
 
 class LogInStates(StatesGroup):

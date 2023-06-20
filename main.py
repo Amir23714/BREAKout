@@ -64,8 +64,7 @@ def strategy(buy_amt, SL=0.985, Target=1.02, open_position=False):
         print('No find')
         time.sleep(20)
 
-
-while True:
-    strategy(15)
+    while True:
+        strategy(15)
 
 print(top_coin())
