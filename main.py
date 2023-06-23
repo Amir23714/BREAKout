@@ -106,15 +106,6 @@ def strategy(buy_amt, SL=0.985, Target=1.02, open_position=False):
 # frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
 # print(frame.loc[lambda frame: frame['Volume'].astype(float)>50000])
 
-#oreder book data via json:
-# url= 'https://api.binance.com/api/v3/depth'
-# params={
-#     "symbol":symbol,
-#     "limit":2,
-# }
-# data=requests.get(url,params).json()
-# print(data)
-
 ob=custom_order_book(symbol="BTCUSDT",limit=60)
 # ob=ob[ob.quantity>0]
 print(ob)
