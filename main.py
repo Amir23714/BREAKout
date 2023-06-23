@@ -16,6 +16,39 @@ def top_coin():
     top_coin = top_coin.symbol.values[0]
     return top_coin
 
+def custom_order_book(symbol, custom_interval_multiplicator=10,limit=100):
+    #Important: function sends order book with empty levels, so amount of rows can be more than limit
+    #If you dont want to see levels with 0 quantity orders - filter data frame
+    #TODO: Dont repeat yourself
+    order_book=client.get_order_book(symbol=symbol,limit=limit) # spot order book
+    default_interval=Decimal(order_book['bids'][0][0])-Decimal(order_book['bids'][1][0])
+    custom_interval=Decimal(str(custom_interval_multiplicator))*Decimal(str(default_interval))
+    print(order_book,len(order_book['asks']),len(order_book['bids']))
+
+    # get bids data
+    bids = pd.DataFrame(order_book["bids"], columns=['price', 'quantity'], dtype=float)
+    bids["side"] = "buy"
+    min_bid_level = math.floor(min(bids.price) / float(custom_interval)) * custom_interval
+    max_bid_level = (math.ceil(max(bids.price) / float(custom_interval)) + 1) * custom_interval
+    custom_orderbook_levels = [float(min_bid_level + custom_interval * x) for x in range
+                                (int((max_bid_level - min_bid_level) / custom_interval) - 1)]
+    bids["custom"] = pd.cut(bids.price, bins=custom_orderbook_levels, right=False, precision=10)
+    bids = bids.groupby("custom").agg(quantity=("quantity", "sum"), side=("side", "first")).reset_index()
+    bids["label"] = bids.custom.apply(lambda x: x.left)
+
+    # get asks data
+    asks = pd.DataFrame(order_book["asks"], columns=['price', 'quantity'], dtype=float)
+    asks["side"] = "sell"
+    min_ask_level = math.floor(min(asks.price) / float(custom_interval)) * custom_interval
+    max_ask_level = (math.ceil(max(asks.price) / float(custom_interval)) + 1) * custom_interval
+    custom_orderbook_levels = [float(min_ask_level + custom_interval * x) for x in range
+                                (int((max_ask_level - min_ask_level) / custom_interval) - 1)]
+    asks["custom"] = pd.cut(asks.price, bins=custom_orderbook_levels, right=False, precision=10)
+    asks = asks.groupby("custom").agg(quantity=("quantity", "sum"), side=("side", "first")).reset_index()
+    asks["label"] = asks.custom.apply(lambda x: x.left)
+
+    order_book=pd.concat([asks.iloc[::-1],bids.iloc[::-1]])
+    return order_book
 
 def last_data(symbol, interval, lookback):
     frame = pd.DataFrame(client.get_historical_klines(symbol, interval, lookback + 'min ago UTC'))
@@ -67,49 +100,12 @@ def strategy(buy_amt, SL=0.985, Target=1.02, open_position=False):
         time.sleep(20)
     while True:
         strategy(15)
-#TODO: Выведите это сообщение человеку через бота
-print(top_coin())
 
 # frame = pd.DataFrame(client.get_historical_klines('BTCUSDT', '12h','72000' + 'min ago UTC'))
 # frame = frame.iloc[:, :6]
 # frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
 # print(frame.loc[lambda frame: frame['Volume'].astype(float)>50000])
 
-#oreder book data:
-# url= 'https://api.binance.com/api/v3/depth'
-# params={
-#     "symbol":symbol,
-#     "limit":2,
-# }
-# data=requests.get(url,params).json()
-# print(data)
-
-#order book data through client:
-# symbol="SOLUSDT"
-# custom_interval_multiplicator=10
-# order_book=client.get_order_book(symbol=symbol,limit=100) # spot order book
-# default_interval=Decimal(order_book['bids'][0][0])-Decimal(order_book['bids'][1][0])
-# custom_interval=Decimal(str(custom_interval_multiplicator))*Decimal(str(default_interval))
-# print(order_book)
-#
-# #create more convient order book with custom interval
-# bids=pd.DataFrame(order_book["bids"],columns=['price','quantity'],dtype=float)
-# bids["side"]="buy"
-# min_bid_level=math.floor(min(bids.price)/float(custom_interval))*custom_interval
-# max_bid_level=(math.ceil(max(bids.price)/float(custom_interval))+1)*custom_interval
-# custom_orderbook_levels=[float(min_bid_level+custom_interval*x) for x in range (int((max_bid_level-min_bid_level)/custom_interval)-1)]
-# bids["custom"]=pd.cut(bids.price,bins=custom_orderbook_levels, right=False,precision=10)
-# bids=bids.groupby("custom").agg(quantity=("quantity","sum"),side=("side","first")).reset_index()
-# bids["label"]=bids.custom.apply(lambda x:   x.left)
-# # bids=bids.iloc[::-1].reset_index(drop=True).head()
-#
-# asks=pd.DataFrame(order_book["asks"],columns=['price','quantity'],dtype=float)
-# asks["side"]="sell"
-# min_ask_level=(math.floor(min(asks.price)/float(custom_interval)))*custom_interval
-# max_ask_level=(math.ceil(max(asks.price)/float(custom_interval)))*custom_interval
-# custom_orderbook_asks=[float(min_ask_level+custom_interval*x) for x in range (int((max_ask_level-min_ask_level)/custom_interval)+1)]
-# asks["custom"]=pd.cut(asks.price,bins=custom_orderbook_asks, right=True,precision=10)
-# asks=asks.groupby("custom").agg(quantity=("quantity","sum"),side=("side","first")).reset_index()
-# asks["label"]=asks.custom.apply(lambda x:   x.left)
-# # asks=asks.iloc[::-1].reset_index(drop=True).head()
-# print(asks.iloc[::-1],bids.iloc[::-1])
+ob=custom_order_book(symbol="BTCUSDT",limit=60)
+# ob=ob[ob.quantity>0]
+print(ob)
