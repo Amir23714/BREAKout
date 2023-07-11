@@ -7,6 +7,99 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from main import *
+import some_aditional_func
+flag = 50
+bot = Bot(token='6234279060:AAFx1KgWvVNg1prHpQfvlS203nZaOt4IH5U')
+dp = Dispatcher(bot, storage=MemoryStorage())
+coins = ['BTC', 'ETH', 'BNB', 'BCC', 'NEO', 'LTC', 'QTUM', 'ADA', 'XRP', 'EOS', 'TUSD', 'IOTA', 'XLM', 'ONT', 'TRX',
+         'ETC', 'ICX', 'VEN', 'NULS', 'VET', 'PAX', 'BCHABC', 'BCHSV', 'USDC', 'LINK', 'WAVES', 'BTT', 'USDS', 'ONG',
+         'HOT', 'ZIL', 'ZRX', 'FET', 'BAT', 'XMR', 'ZEC', 'IOST', 'CELR', 'DASH', 'NANO', 'OMG', 'THETA', 'ENJ', 'MITH',
+         'MATIC', 'ATOM', 'TFUEL', 'ONE', 'FTM', 'ALGO', 'USDSB', 'GTO', 'ERD', 'DOGE', 'DUSK', 'ANKR', 'WIN', 'COS',
+         'NPXS', 'COCOS', 'MTL', 'TOMO', 'PERL', 'DENT', 'MFT', 'KEY', 'STORM', 'DOCK', 'WAN', 'FUN', 'CVC', 'CHZ',
+         'BAND', 'BUSD', 'BEAM', 'XTZ', 'REN', 'RVN', 'HC', 'HBAR', 'NKN', 'STX', 'KAVA', 'ARPA', 'IOTX', 'RLC', 'MCO',
+         'CTXC', 'BCH', 'TROY', 'VITE', 'FTT', 'EUR', 'OGN', 'DREP', 'BULL', 'BEAR', 'ETHBULL', 'ETHBEAR', 'TCT', 'WRX',
+         'BTS', 'LSK', 'BNT', 'LTO', 'EOSBULL', 'EOSBEAR', 'XRPBULL', 'XRPBEAR', 'STRAT', 'AION', 'MBL', 'COTI',
+         'BNBBULL', 'BNBBEAR', 'STPT', 'WTC', 'DATA', 'XZC', 'SOL', 'CTSI', 'HIVE', 'CHR', 'BTCUP', 'BTCDOWN', 'GXS',
+         'ARDR', 'LEND', 'MDT', 'STMX', 'KNC', 'REP', 'LRC', 'PNT', 'COMP', 'BKRW', 'SC', 'ZEN', 'SNX', 'ETHUP',
+         'ETHDOWN', 'ADAUP', 'ADADOWN', 'LINKUP', 'LINKDOWN', 'VTHO', 'DGB', 'GBP', 'SXP', 'MKR', 'DAI', 'DCR', 'STORJ',
+         'BNBUP', 'BNBDOWN', 'XTZUP', 'XTZDOWN', 'MANA', 'AUD', 'YFI', 'BAL', 'BLZ', 'IRIS', 'KMD', 'JST', 'SRM', 'ANT',
+         'CRV', 'SAND', 'OCEAN', 'NMR', 'DOT', 'LUNA', 'RSR', 'PAXG', 'WNXM', 'TRB', 'BZRX', 'SUSHI', 'YFII', 'KSM',
+         'EGLD', 'DIA', 'RUNE', 'FIO', 'UMA', 'EOSUP', 'EOSDOWN', 'TRXUP', 'TRXDOWN', 'XRPUP', 'XRPDOWN', 'DOTUP',
+         'DOTDOWN', 'BEL', 'WING', 'LTCUP', 'LTCDOWN', 'UNI', 'NBS', 'OXT', 'SUN', 'AVAX', 'HNT', 'FLM', 'UNIUP',
+         'UNIDOWN', 'ORN', 'UTK', 'XVS', 'ALPHA', 'AAVE', 'NEAR', 'SXPUP', 'SXPDOWN', 'FIL', 'FILUP', 'FILDOWN',
+         'YFIUP', 'YFIDOWN', 'INJ', 'AUDIO', 'CTK', 'BCHUP', 'BCHDOWN', 'AKRO', 'AXS', 'HARD', 'DNT', 'STRAX', 'UNFI',
+         'ROSE', 'AVA', 'XEM', 'AAVEUP', 'AAVEDOWN', 'SKL', 'SUSD', 'SUSHIUP', 'SUSHIDOWN', 'XLMUP', 'XLMDOWN', 'GRT',
+         'JUV', 'PSG', '1INCH', 'REEF', 'OG', 'ATM', 'ASR', 'CELO', 'RIF', 'BTCST', 'TRU', 'CKB', 'TWT', 'FIRO', 'LIT',
+         'SFP', 'DODO', 'CAKE', 'ACM', 'BADGER', 'FIS', 'OM', 'POND', 'DEGO', 'ALICE', 'LINA', 'PERP', 'RAMP', 'SUPER',
+         'CFX', 'EPS', 'AUTO', 'TKO', 'PUNDIX', 'TLM', '1INCHUP', '1INCHDOWN', 'BTG', 'MIR', 'BAR', 'FORTH', 'BAKE',
+         'BURGER', 'SLP', 'SHIB', 'ICP', 'AR', 'POLS', 'MDX', 'MASK', 'LPT', 'NU', 'XVG', 'ATA', 'GTC', 'TORN', 'KEEP',
+         'ERN', 'KLAY', 'PHA', 'BOND', 'MLN', 'DEXE', 'C98', 'CLV', 'QNT', 'FLOW', 'TVK', 'MINA', 'RAY', 'FARM',
+         'ALPACA', 'QUICK', 'MBOX', 'FOR', 'REQ', 'GHST', 'WAXP', 'TRIBE', 'GNO', 'XEC', 'ELF', 'DYDX', 'POLY', 'IDEX',
+         'VIDT', 'USDP', 'GALA', 'ILV', 'YGG', 'SYS', 'DF', 'FIDA', 'FRONT', 'CVP', 'AGLD', 'RAD', 'BETA', 'RARE',
+         'LAZIO', 'CHESS', 'ADX', 'AUCTION', 'DAR', 'BNX', 'RGT', 'MOVR', 'CITY', 'ENS', 'KP3R', 'QI', 'PORTO', 'POWR',
+         'VGX', 'JASMY', 'AMP', 'PLA', 'PYR', 'RNDR', 'ALCX', 'SANTOS', 'MC', 'ANY', 'BICO', 'FLUX', 'FXS', 'VOXEL',
+         'HIGH', 'CVX', 'PEOPLE', 'OOKI', 'SPELL', 'UST', 'JOE', 'ACH', 'IMX', 'GLMR', 'LOKA', 'SCRT', 'API3', 'BTTC',
+         'ACA', 'ANC', 'XNO', 'WOO', 'ALPINE', 'T', 'ASTR', 'NBT', 'GMT', 'KDA', 'APE', 'BSW', 'BIFI', 'MULTI', 'STEEM',
+         'MOB', 'NEXO', 'REI', 'GAL', 'LDO', 'EPX', 'OP', 'LEVER', 'STG', 'LUNC', 'GMX', 'NEBL', 'POLYX', 'APT', 'OSMO',
+         'HFT', 'PHB', 'HOOK', 'MAGIC', 'HIFI', 'RPL', 'PROS', 'AGIX', 'GNS', 'SYN', 'VIB', 'SSV', 'LQTY', 'AMB',
+         'BETH', 'USTC', 'GAS', 'GLM', 'PROM', 'QKC', 'UFT', 'ID', 'ARB', 'LOOM', 'OAX', 'RDNT', 'WBTC', 'EDU', 'SUI',
+         'AERGO', 'PEPE', 'FLOKI', 'AST', 'SNT', 'COMBO', 'MAV', 'PENDLE']
+
+## Keyboard
+button_authorization = KeyboardButton('Log in 🤳')
+first_kb_no_admins = ReplyKeyboardMarkup(resize_keyboard=True).add(button_authorization)
+
+
+def get_inline_kb(i: int):
+    inline_keyboard = InlineKeyboardMarkup(row_width=5)
+    buttons = []
+
+    for coin in coins[i - 50:i]:
+        buttons.append(InlineKeyboardButton(coin, callback_data=coin))
+
+    inline_keyboard.add(*buttons)
+
+    if i >= 400:
+        inline_keyboard.row(InlineKeyboardButton('Prev', callback_data='prev'))
+    elif i <= 50:
+        inline_keyboard.row(InlineKeyboardButton('Next', callback_data='next'))
+    else:
+        inline_keyboard.row(
+            InlineKeyboardButton('Prev', callback_data='prev'),
+            InlineKeyboardButton('Next', callback_data='next')
+        )
+
+    return inline_keyboard
+
+
+@dp.callback_query_handler(text='next')
+async def get_further_kb(query: types.CallbackQuery):
+    global flag
+    flag += 50
+    await query.message.edit_reply_markup(reply_markup=get_inline_kb(flag))
+
+
+@dp.callback_query_handler(text='prev')
+async def get_prev_kb(query: types.CallbackQuery):
+    global flag
+    flag -= 50
+    await query.message.edit_reply_markup(reply_markup=get_inline_kb(flag))
+
+
+@dp.message_handler(text='Currency rates 💰')
+async def process_statistics_command(message: types.Message):
+    global flag
+    flag = 50
+    await message.reply("Choose the coin:", reply_markup=get_inline_kb(flag))
+
+@dp.callback_query_handler(lambda query: query.data in coins)
+async def handle_coin_button(query: types.CallbackQuery):
+    selected_coin = query.data
+    # Handle the selected coin
+    await query.answer()
+    ans = some_aditional_func.answer(selected_coin)
+    await query.message.answer(ans)
 
 
 data = MemoryStorage()
@@ -18,17 +111,10 @@ class LogInStates(StatesGroup):
     logged_in = State()
 
 
-bot = Bot(token='6234279060:AAFx1KgWvVNg1prHpQfvlS203nZaOt4IH5U')
-dp = Dispatcher(bot, storage=MemoryStorage())
-
-## Keyboard
-button_authorization = KeyboardButton('Log in 🤳')
-first_kb_no_admins = ReplyKeyboardMarkup(resize_keyboard=True).add(button_authorization)
-
-
 def get_start_kb():
     button_client_work = KeyboardButton('Add an account to work 🚜')
     button_statistics = KeyboardButton('Statistics 💻')
+    button_statistics = KeyboardButton('Currency rates 💰')
 
     first_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_client_work).add(button_statistics)
 
@@ -50,7 +136,6 @@ admins = [682751445, 1992272849]
 
 @dp.message_handler(commands=['start'])
 async def alarm(message: types.Message):
-
     if message.from_user.id in admins:
         await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
     else:
@@ -119,18 +204,18 @@ async def process_client_work_command(message: types.Message):
         await LogInStates.api_key.set()
 
 
-@dp.message_handler(text = ['Statistics 💻'])
+@dp.message_handler(text=['Statistics 💻'])
 async def process_statistics_command(message: types.Message):
     if message.from_user.id in admins:
-        await message.reply("TO be procecced")
+        await message.reply("To be procecced")
+
+
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
     if message.from_user.id in admins:
         await message.answer("I don't understand you, try again", reply_markup=get_start_kb())
-
-
 
 
 if __name__ == '__main__':
