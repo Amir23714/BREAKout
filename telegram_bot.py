@@ -9,6 +9,15 @@ from aiogram.types import ReplyKeyboardRemove, \
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from main import *
 import some_aditional_func
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+import subprocess
+
+data = MemoryStorage()
+class LogInStates(StatesGroup):
+    api_key = State()
+    secret_key = State()
+    logged_in = State()
+
 flag = 50
 bot = Bot(token='6234279060:AAFx1KgWvVNg1prHpQfvlS203nZaOt4IH5U')
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -87,12 +96,25 @@ async def get_prev_kb(query: types.CallbackQuery):
     await query.message.edit_reply_markup(reply_markup=get_inline_kb(flag))
 
 
-@dp.message_handler(text='Currency rates 💰')
+
+## Keyboard
+button_authorization = KeyboardButton('Log in 🤳')
+first_kb_no_admins = ReplyKeyboardMarkup(resize_keyboard=True).add(button_authorization)
+
+
+def get_start_kb():
+    button_client_work = KeyboardButton('Add an account to work 🚜')
+    button_statistics = KeyboardButton('Prices 💰')
+
+    first_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_client_work).add(button_statistics)
+
+    return first_kb
+
+@dp.message_handler(text='Prices 💰')
 async def process_statistics_command(message: types.Message):
     global flag
     flag = 50
     await message.reply("Choose the coin:", reply_markup=get_inline_kb(flag))
-
 @dp.callback_query_handler(lambda query: query.data in coins)
 async def handle_coin_button(query: types.CallbackQuery):
     selected_coin = query.data
@@ -101,24 +123,13 @@ async def handle_coin_button(query: types.CallbackQuery):
     ans = some_aditional_func.answer(selected_coin)
     await query.message.answer(ans)
 
+def get_final_kb():
+    button_back = KeyboardButton('Back 🔙')
+    button_back_to_main = KeyboardButton('Back to main menu 🔙')
+    button_start = KeyboardButton('Start 🚀')
+    final_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_back).add(button_back_to_main).add(button_start)
 
-data = MemoryStorage()
-
-
-class LogInStates(StatesGroup):
-    api_key = State()
-    secret_key = State()
-    logged_in = State()
-
-
-def get_start_kb():
-    button_client_work = KeyboardButton('Add an account to work 🚜')
-    button_statistics = KeyboardButton('Statistics 💻')
-    button_statistics = KeyboardButton('Currency rates 💰')
-
-    first_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_client_work).add(button_statistics)
-
-    return first_kb
+    return final_kb
 
 
 def get_debug_kb():
@@ -137,6 +148,9 @@ admins = [682751445, 1992272849]
 @dp.message_handler(commands=['start'])
 async def alarm(message: types.Message):
     if message.from_user.id in admins:
+        global USER_ID
+        USER_ID = message.from_user.id
+        print("Valid" + str(USER_ID))
         await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
     else:
         await message.answer(f"Greetings, {message.from_user.username}, log in!", reply_markup=first_kb_no_admins)
@@ -179,7 +193,11 @@ async def return_from_secret_state(message: types.Message, state: FSMContext):
                 data['secret_key'] = message.text
 
             await message.reply(f"Your API_KEY: {data['api_key']}\nYour SECRET_KEY: {data['secret_key']}",
-                                reply_markup=get_debug_kb())
+                                reply_markup=get_final_kb())
+
+            global API_KEY, SECRET_KEY
+            API_KEY = data.get("api_key")
+            SECRET_KEY = data.get("secret_key")
             await LogInStates.logged_in.set()
 
 
@@ -194,6 +212,10 @@ async def return_from_loggedin_state(message: types.Message, state: FSMContext):
             await message.reply("Main menu", reply_markup=get_start_kb())
             await state.finish()
 
+        elif message.text == 'Start 🚀':
+            subprocess.Popen("python main.py", shell=True)
+            await message.reply("Started torgovlya")
+
 
 @dp.message_handler(text=['Add an account to work 🚜'])
 async def process_client_work_command(message: types.Message):
@@ -207,15 +229,18 @@ async def process_client_work_command(message: types.Message):
 @dp.message_handler(text=['Statistics 💻'])
 async def process_statistics_command(message: types.Message):
     if message.from_user.id in admins:
-        await message.reply("To be procecced")
-
-
+        await message.reply("TO be procecced")
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
     if message.from_user.id in admins:
         await message.answer("I don't understand you, try again", reply_markup=get_start_kb())
+
+
+async def notify_user(message: str, bot, userid):
+    print(userid)
+    await bot.send_message(chat_id=userid, text=message)
 
 
 if __name__ == '__main__':
