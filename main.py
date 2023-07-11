@@ -1,4 +1,6 @@
-import numpy
+import asyncio
+
+
 from binance.client import Client
 import keys
 import pandas as pd

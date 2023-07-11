@@ -9,7 +9,7 @@ from aiogram.types import ReplyKeyboardRemove, \
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 import settings
-from main import *
+
 
 import some_aditional_func
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -214,7 +214,13 @@ async def return_from_loggedin_state(message: types.Message, state: FSMContext):
             await state.finish()
 
         elif message.text == 'Start 🚀':
-            subprocess.Popen("python main.py", shell=True)
+            try:
+                output = subprocess.check_output("python main.py",
+                                                 stderr=subprocess.STDOUT,
+                                                 universal_newlines=True)
+                print(output)
+            except subprocess.CalledProcessError as error:
+                print(error.output)
             await message.reply("Started torgovlya")
 
 
