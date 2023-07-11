@@ -5,9 +5,11 @@ import pandas as pd
 import numpy as np
 import math
 from decimal import Decimal
+from settings import SECRET_KEY,API_KEY,USER_ID
+from telegram_bot import notify_user, bot
 
-client = Client(keys.api_key, keys.secret_key)
-
+client = Client(API_KEY, SECRET_KEY)
+#dsads
 
 def top_volatile_and_volume_coins(amount_to_show=3, traded_volme=20000000):
     '''return all coins and their data. Do not call this function frequently.'''
@@ -183,21 +185,21 @@ def main():
             # if low volume, go breakout
             if 0 < zone_to_trade_total_volume / order_book_total_volume < 0.1:
                 if min_percent >= 1:
-                    print(coin + " long " + zone_to_trade[0].astype(str) + " take profit " + (
-                                zone_to_trade[0] * (1 + rewardrisk / 100)).astype(str))
+                    asyncio.run(notify_user(coin + " long " + zone_to_trade[0].astype(str) + " take profit " + (
+                                zone_to_trade[0] * (1 + rewardrisk / 100)).astype(str), bot, USER_ID))
                 elif min_percent < 1:
-                    print(coin + " short " + zone_to_trade[-1].astype(str) + " take profit " + (
-                                zone_to_trade[-1] * (1 - rewardrisk / 100)).astype(str))
+                    asyncio.run(notify_user(message = coin + " short " + zone_to_trade[-1].astype(str) + " take profit " + (
+                                zone_to_trade[-1] * (1 - rewardrisk / 100)).astype(str), bot = bot, userid=USER_ID))
             # if high volume, go bounce
             elif zone_to_trade_total_volume / order_book_total_volume >= 0.3:
                 if min_percent >= 1:
-                    print(coin + " short " + zone_to_trade[0].astype(str) + " take profit " + (
-                                zone_to_trade[0] * (1 - rewardrisk / 100)).astype(str))
+                    asyncio.run(notify_user(coin + " short " + zone_to_trade[0].astype(str) + " take profit " + (
+                                zone_to_trade[0] * (1 - rewardrisk / 100)).astype(str), bot, USER_ID))
                 elif min_percent < 1:
-                    print(coin + " long " + zone_to_trade[-1].astype(str) + " take profit " + (
-                                zone_to_trade[-1] * (1 + rewardrisk / 100)).astype(str))
+                    asyncio.run(notify_user(coin + " long " + zone_to_trade[-1].astype(str) + " take profit " + (
+                                zone_to_trade[-1] * (1 + rewardrisk / 100)).astype(str), bot, USER_ID))
             else:
-                print(coin + " Has no breakout/bounce situations")
+                asyncio.run(notify_user(coin + " Has no breakout/bounce situations", bot, USER_ID))
 # algorithm:
 # 1) choose only top volatile+large volume coins
 # 2) find zones and levels

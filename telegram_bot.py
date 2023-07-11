@@ -7,11 +7,14 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
+import settings
 from main import *
+
 import some_aditional_func
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import subprocess
-
+#dadsa
 data = MemoryStorage()
 class LogInStates(StatesGroup):
     api_key = State()
@@ -148,9 +151,7 @@ admins = [682751445, 1992272849]
 @dp.message_handler(commands=['start'])
 async def alarm(message: types.Message):
     if message.from_user.id in admins:
-        global USER_ID
-        USER_ID = message.from_user.id
-        print("Valid" + str(USER_ID))
+        settings.USER_ID = message.from_user.id
         await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
     else:
         await message.answer(f"Greetings, {message.from_user.username}, log in!", reply_markup=first_kb_no_admins)
@@ -196,8 +197,8 @@ async def return_from_secret_state(message: types.Message, state: FSMContext):
                                 reply_markup=get_final_kb())
 
             global API_KEY, SECRET_KEY
-            API_KEY = data.get("api_key")
-            SECRET_KEY = data.get("secret_key")
+            settings.API_KEY = data.get("api_key")
+            settings.SECRET_KEY = data.get("secret_key")
             await LogInStates.logged_in.set()
 
 
