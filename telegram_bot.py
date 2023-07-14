@@ -14,12 +14,16 @@ from main import main
 import some_aditional_func
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import subprocess
-#dadsa
+
+# dadsa
 data = MemoryStorage()
+
+
 class LogInStates(StatesGroup):
     api_key = State()
     secret_key = State()
     logged_in = State()
+
 
 flag = 50
 bot = Bot(token='6234279060:AAFx1KgWvVNg1prHpQfvlS203nZaOt4IH5U')
@@ -99,7 +103,6 @@ async def get_prev_kb(query: types.CallbackQuery):
     await query.message.edit_reply_markup(reply_markup=get_inline_kb(flag))
 
 
-
 ## Keyboard
 button_authorization = KeyboardButton('Log in 🤳')
 first_kb_no_admins = ReplyKeyboardMarkup(resize_keyboard=True).add(button_authorization)
@@ -113,11 +116,14 @@ def get_start_kb():
 
     return first_kb
 
+
 @dp.message_handler(text='Prices 💰')
 async def process_statistics_command(message: types.Message):
     global flag
     flag = 50
     await message.reply("Choose the coin:", reply_markup=get_inline_kb(flag))
+
+
 @dp.callback_query_handler(lambda query: query.data in coins)
 async def handle_coin_button(query: types.CallbackQuery):
     selected_coin = query.data
@@ -125,6 +131,7 @@ async def handle_coin_button(query: types.CallbackQuery):
     await query.answer()
     ans = some_aditional_func.answer(selected_coin)
     await query.message.answer(ans)
+
 
 def get_final_kb():
     button_back = KeyboardButton('Back 🔙')
@@ -144,99 +151,89 @@ def get_debug_kb():
     return debug_kb
 
 
-## Admins
-admins = [682751445, 1992272849]
-
-
 @dp.message_handler(commands=['start'])
 async def alarm(message: types.Message):
-    if message.from_user.id in admins:
-        settings.USER_ID = message.from_user.id
-        await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
-    else:
-        await message.answer(f"Greetings, {message.from_user.username}, log in!", reply_markup=first_kb_no_admins)
+    settings.USER_ID = message.from_user.id
+    await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
 
 
 @dp.message_handler(state=LogInStates.api_key)
 async def return_from_api_state(message: types.Message, state: FSMContext):
-    if message.from_user.id in admins:
-        if message.text == 'Back 🔙':
-            await message.reply("Main menu", reply_markup=get_start_kb())
-            await state.finish()
 
-        elif message.text == 'Back to main menu 🔙':
-            await message.reply("Main menu", reply_markup=get_start_kb())
-            await state.finish()
+    if message.text == 'Back 🔙':
+        await message.reply("Main menu", reply_markup=get_start_kb())
+        await state.finish()
 
-        else:
-            async with state.proxy() as data:
-                data['api_key'] = message.text
+    elif message.text == 'Back to main menu 🔙':
+        await message.reply("Main menu", reply_markup=get_start_kb())
+        await state.finish()
 
-            await message.reply("Enter SECRET_KEY which is tied to the work account:", reply_markup=get_debug_kb())
-            await LogInStates.secret_key.set()
+    else:
+        async with state.proxy() as data:
+            data['api_key'] = message.text
+
+        await message.reply("Enter SECRET_KEY which is tied to the work account:", reply_markup=get_debug_kb())
+        await LogInStates.secret_key.set()
 
 
 @dp.message_handler(state=LogInStates.secret_key)
 async def return_from_secret_state(message: types.Message, state: FSMContext):
-    if message.from_user.id in admins:
-        if message.text == 'Back 🔙':
-            await message.reply("Add account section.\n"
-                                "\n"
-                                "Enter API_KEY which is tied to the work account:", reply_markup=get_debug_kb())
-            await LogInStates.api_key.set()
-
-        elif message.text == 'Back to main menu 🔙':
-            await message.reply("Main menu", reply_markup=get_start_kb())
-            await state.finish()
-
-        else:
-            async with state.proxy() as data:
-                data['secret_key'] = message.text
-
-            await message.reply(f"Your API_KEY: {data['api_key']}\nYour SECRET_KEY: {data['secret_key']}",
-                                reply_markup=get_final_kb())
-
-            global API_KEY, SECRET_KEY
-            settings.API_KEY = data.get("api_key")
-            settings.SECRET_KEY = data.get("secret_key")
-            await LogInStates.logged_in.set()
-
-
-@dp.message_handler(state=LogInStates.logged_in)
-async def return_from_loggedin_state(message: types.Message, state: FSMContext):
-    if message.from_user.id in admins:
-        if message.text == 'Back 🔙':
-            await message.reply("Enter SECRET_KEY which is tied to the work account:", reply_markup=get_debug_kb())
-            await LogInStates.secret_key.set()
-
-        elif message.text == 'Back to main menu 🔙':
-            await message.reply("Main menu", reply_markup=get_start_kb())
-            await state.finish()
-
-        elif message.text == 'Start 🚀':
-            task = threading.Thread(target=main)
-            task.start()
-
-
-@dp.message_handler(text=['Add an account to work 🚜'])
-async def process_client_work_command(message: types.Message):
-    if message.from_user.id in admins:
+    if message.text == 'Back 🔙':
         await message.reply("Add account section.\n"
                             "\n"
                             "Enter API_KEY which is tied to the work account:", reply_markup=get_debug_kb())
         await LogInStates.api_key.set()
 
+    elif message.text == 'Back to main menu 🔙':
+        await message.reply("Main menu", reply_markup=get_start_kb())
+        await state.finish()
+
+    else:
+        async with state.proxy() as data:
+            data['secret_key'] = message.text
+
+        await message.reply(f"Your API_KEY: {data['api_key']}\nYour SECRET_KEY: {data['secret_key']}",
+                            reply_markup=get_final_kb())
+
+        global API_KEY, SECRET_KEY
+        settings.API_KEY = data.get("api_key")
+        settings.SECRET_KEY = data.get("secret_key")
+        import db
+        db.add_user(message.from_user.id, data.get("api_key"), data.get("secret_key"))
+        await LogInStates.logged_in.set()
+
+
+@dp.message_handler(state=LogInStates.logged_in)
+async def return_from_loggedin_state(message: types.Message, state: FSMContext):
+    if message.text == 'Back 🔙':
+        await message.reply("Enter SECRET_KEY which is tied to the work account:", reply_markup=get_debug_kb())
+        await LogInStates.secret_key.set()
+
+    elif message.text == 'Back to main menu 🔙':
+        await message.reply("Main menu", reply_markup=get_start_kb())
+        await state.finish()
+
+    elif message.text == 'Start 🚀':
+        task = threading.Thread(target=main)
+        task.start()
+
+
+@dp.message_handler(text=['Add an account to work 🚜'])
+async def process_client_work_command(message: types.Message):
+    await message.reply("Add account section.\n"
+                        "\n"
+                        "Enter API_KEY which is tied to the work account:", reply_markup=get_debug_kb())
+    await LogInStates.api_key.set()
+
 
 @dp.message_handler(text=['Statistics 💻'])
 async def process_statistics_command(message: types.Message):
-    if message.from_user.id in admins:
-        await message.reply("TO be procecced")
+    await message.reply("TO be procecced")
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
-    if message.from_user.id in admins:
-        await message.answer("I don't understand you, try again", reply_markup=get_start_kb())
+    await message.answer("I don't understand you, try again", reply_markup=get_start_kb())
 
 
 async def notify_user(message: str, bot, userid):
