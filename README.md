@@ -4,3 +4,4 @@ Alghorithm shortly: When some coin have anomaly of limit orders at some level - 
 Alghorithm extended: get data from binance api about historical data : currnet order book and previous high/lows;
                      It analyses currently traded volume, limit orders, risk/reward, how fast coin came to level.
 Telegram bot is used for convient free use period.
+Bot is deployed using Innopolis Virtual Machine
