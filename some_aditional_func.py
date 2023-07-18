@@ -1,8 +1,8 @@
 from binance.client import Client
 from keys import secret_key, api_key
 import numpy as np
-
 client = Client(api_key, secret_key)
+'''The function, which returns the cost of coins in USDT'''
 def answer(coin):
     if client.get_historical_klines(f"{coin}USDT", Client.KLINE_INTERVAL_1DAY, "1 day ago UTC") != []:
         befor_cost = float(client.get_ticker(symbol=f"{coin}USDT")['priceChangePercent'])

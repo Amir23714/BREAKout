@@ -15,16 +15,16 @@ import some_aditional_func
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import subprocess
 
-# dadsa
+
 data = MemoryStorage()
 
-
+'''states in bot'''
 class LogInStates(StatesGroup):
     api_key = State()
     secret_key = State()
     logged_in = State()
 
-
+'''Some variables, like key and coins'''
 flag = 50
 bot = Bot(token='6234279060:AAFx1KgWvVNg1prHpQfvlS203nZaOt4IH5U')
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -66,7 +66,7 @@ coins = ['BTC', 'ETH', 'BNB', 'BCC', 'NEO', 'LTC', 'QTUM', 'ADA', 'XRP', 'EOS', 
 button_authorization = KeyboardButton('Log in 🤳')
 first_kb_no_admins = ReplyKeyboardMarkup(resize_keyboard=True).add(button_authorization)
 
-
+'''The function, to get inline keyboard'''
 def get_inline_kb(i: int):
     inline_keyboard = InlineKeyboardMarkup(row_width=5)
     buttons = []
@@ -88,7 +88,7 @@ def get_inline_kb(i: int):
 
     return inline_keyboard
 
-
+'''The functions, to get inline keyboard, when user pressed "Next" or "Prev" button'''
 @dp.callback_query_handler(text='next')
 async def get_further_kb(query: types.CallbackQuery):
     global flag
@@ -102,28 +102,22 @@ async def get_prev_kb(query: types.CallbackQuery):
     flag -= 50
     await query.message.edit_reply_markup(reply_markup=get_inline_kb(flag))
 
-
-## Keyboard
-button_authorization = KeyboardButton('Log in 🤳')
-first_kb_no_admins = ReplyKeyboardMarkup(resize_keyboard=True).add(button_authorization)
-
-
+'''The function, to get start keyboard'''
 def get_start_kb():
     button_client_work = KeyboardButton('Add an account to work 🚜')
     button_statistics = KeyboardButton('Prices 💰')
-
     first_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_client_work).add(button_statistics)
 
     return first_kb
 
-
+'''The function, when user pressed "Prices" button'''
 @dp.message_handler(text='Prices 💰')
 async def process_statistics_command(message: types.Message):
     global flag
     flag = 50
     await message.reply("Choose the coin:", reply_markup=get_inline_kb(flag))
 
-
+'''The function, when user pressed to some coin'''
 @dp.callback_query_handler(lambda query: query.data in coins)
 async def handle_coin_button(query: types.CallbackQuery):
     selected_coin = query.data
@@ -132,7 +126,7 @@ async def handle_coin_button(query: types.CallbackQuery):
     ans = some_aditional_func.answer(selected_coin)
     await query.message.answer(ans)
 
-
+'''The function, when user pressed "Add an account to work" button'''
 def get_final_kb():
     button_back = KeyboardButton('Back 🔙')
     button_back_to_main = KeyboardButton('Back to main menu 🔙')
@@ -141,7 +135,7 @@ def get_final_kb():
 
     return final_kb
 
-
+'''The debug keyboard'''
 def get_debug_kb():
     button_back = KeyboardButton('Back 🔙')
     button_back_to_main = KeyboardButton('Back to main menu 🔙')
@@ -150,13 +144,13 @@ def get_debug_kb():
 
     return debug_kb
 
-
+'''The function, when user pressed "/start" button'''
 @dp.message_handler(commands=['start'])
 async def alarm(message: types.Message):
     settings.USER_ID = message.from_user.id
     await message.answer(f"Greetings, {message.from_user.username}", reply_markup=get_start_kb())
 
-
+'''The function, when user in the api key state'''
 @dp.message_handler(state=LogInStates.api_key)
 async def return_from_api_state(message: types.Message, state: FSMContext):
 
@@ -175,7 +169,7 @@ async def return_from_api_state(message: types.Message, state: FSMContext):
         await message.reply("Enter SECRET_KEY which is tied to the work account:", reply_markup=get_debug_kb())
         await LogInStates.secret_key.set()
 
-
+'''The function, when user in the secret key state'''
 @dp.message_handler(state=LogInStates.secret_key)
 async def return_from_secret_state(message: types.Message, state: FSMContext):
     if message.text == 'Back 🔙':
@@ -202,7 +196,7 @@ async def return_from_secret_state(message: types.Message, state: FSMContext):
         db.add_user(message.from_user.id, data.get("api_key"), data.get("secret_key"))
         await LogInStates.logged_in.set()
 
-
+'''The function, when user in the logged in state'''
 @dp.message_handler(state=LogInStates.logged_in)
 async def return_from_loggedin_state(message: types.Message, state: FSMContext):
     if message.text == 'Back 🔙':
@@ -216,8 +210,9 @@ async def return_from_loggedin_state(message: types.Message, state: FSMContext):
     elif message.text == 'Start 🚀':
         task = threading.Thread(target=main)
         task.start()
+        await message.reply("Here the recommendations:\n", reply_markup=get_start_kb())
 
-
+'''The function, when user pressed "Add an account to work" button'''
 @dp.message_handler(text=['Add an account to work 🚜'])
 async def process_client_work_command(message: types.Message):
     await message.reply("Add account section.\n"
@@ -225,19 +220,13 @@ async def process_client_work_command(message: types.Message):
                         "Enter API_KEY which is tied to the work account:", reply_markup=get_debug_kb())
     await LogInStates.api_key.set()
 
-
-@dp.message_handler(text=['Statistics 💻'])
-async def process_statistics_command(message: types.Message):
-    await message.reply("TO be procecced")
-
-
+'''The handler, which handle all messages'''
 @dp.message_handler()
 async def echo(message: types.Message):
     await message.answer("I don't understand you, try again", reply_markup=get_start_kb())
 
-
+'''The function, which notify user about some event'''
 async def notify_user(message: str, bot, userid):
-    print(userid)
     await bot.send_message(chat_id=userid, text=message)
 
 
